@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
 import os
 import sys
 import json
@@ -8,10 +7,7 @@ import argparse
 import time
 from datetime import datetime, date as _date
 from dateutil.relativedelta import relativedelta
-try:
-    from email.Utils import formatdate
-except ImportError: #py3
-    from email.utils import formatdate
+from email.utils import formatdate
 
 import requests
 
@@ -31,11 +27,11 @@ def logs(domain, api_key, begin=None, end=None, verbose=False):
             response = requests.get(url=url, auth=('api', api_key))
 
         if verbose:
-            print('# {0} {1}'.format(response.request.method, response.request.url), file=sys.stderr)
-            print('# STATUS CODE: {0}'.format(response.status_code), file=sys.stderr)
+            print(f'# {response.request.method} {response.request.url}', file=sys.stderr)
+            print(f'# STATUS CODE: {response.status_code}', file=sys.stderr)
 
         if not response.ok:
-            raise ValueError('Invalid status_code: {0}'.format(response.status_code))
+            raise ValueError(f'Invalid status_code: {response.status_code}')
 
         data = response.json()
 
@@ -165,8 +161,8 @@ def main():
         sys.exit(1)
 
     if args.verbose:
-        print('# BEGIN DATE: {}'.format(begin), file=sys.stderr)
-        print('# END DATE: {}'.format(end), file=sys.stderr)
+        print(f'# BEGIN DATE: {begin}', file=sys.stderr)
+        print(f'# END DATE: {end}', file=sys.stderr)
         sys.stderr.flush()
 
     # main loop
