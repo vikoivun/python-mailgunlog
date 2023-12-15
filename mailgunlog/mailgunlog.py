@@ -11,20 +11,26 @@ from email.utils import formatdate
 
 import requests
 
+def logs(domain, api_key, begin=None, end=None, type=None, severity=None, verbose=False):
+    url = f'https://api.eu.mailgun.net/v3/{domain}/events'
 
-def logs(domain, api_key, begin=None, end=None, verbose=False):
-    url = 'https://api.mailgun.net/v2/%s/events' % domain
-    params = {
-        'begin': begin or formatdate(),
-    }
+    params = {}
+
+    if begin:
+        params['begin'] = begin
     if end:
         params['end'] = end
-    init = True
+    else:
+        params['ascending'] = 'no'
+
+    if severity:
+        params['severity'] = severity
+
+    if type == 'failed':
+        params['event'] = 'failed'
+
     while True:
-        if params:
-            response = requests.get(url=url, auth=('api', api_key), params=params)
-        else:
-            response = requests.get(url=url, auth=('api', api_key))
+        response = requests.get(url=url, auth=('api', api_key), params=params)
 
         if verbose:
             print(f'# {response.request.method} {response.request.url}', file=sys.stderr)
@@ -39,17 +45,13 @@ def logs(domain, api_key, begin=None, end=None, verbose=False):
         for record in items:
             yield record
 
-        if not len(items):
-            if init:
-                # first iteraction, fetch first page
-                url = data['paging']['first']
-                params=None
-            else:
-                # EOF
-                return
-        else:
+        if items:
             url = data['paging']['next']
-        init = False
+            # Paged URLs do not need parameters
+            params = None
+        else:
+            # No more items
+            return
 
 
 def strdate_to_rfc2822(value=None, midnight=False, now=False):
@@ -132,7 +134,7 @@ def main():
         begin = strdate_to_rfc2822(begin_day.strftime('%Y/%m/%d'), midnight=True)
         end = strdate_to_rfc2822()
     else:
-        begin = strdate_to_rfc2822(args.begin, midnight=True)
+        begin = strdate_to_rfc2822(args.begin, midnight=True) if args.begin else None
         end = strdate_to_rfc2822(args.end, now=True) if args.end else None
 
     if begin:
