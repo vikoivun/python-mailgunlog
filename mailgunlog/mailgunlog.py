@@ -92,6 +92,14 @@ def main():
                         dest='end',
                         default=None)
 
+    parser.add_argument('-t', '--type', help='Event type',
+                        dest='type',
+                        default=None)
+
+    parser.add_argument('-s', '--severity', help='Event severity, only applies to type=failed',
+                        dest='severity',
+                        default=None)
+
     parser.add_argument('-j', '--json', help='Print json (original) log records',
                         dest='json',
                         action='store_true',
@@ -170,7 +178,7 @@ def main():
     # main loop
     ###########
 
-    for log in logs(domain=domain, api_key=api_key, begin=begin, end=end, verbose=args.verbose):
+    for log in logs(domain=domain, api_key=api_key, begin=begin, end=end, verbose=args.verbose, type=args.type, severity=args.severity):
         if args.json:
             jsondata['logs'].append(log)
         else:
