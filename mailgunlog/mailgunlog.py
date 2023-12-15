@@ -184,7 +184,7 @@ def main():
         else:
             status = log.get('event', '').upper()
             ok = status in [ 'ACCEPTED', 'DELIVERED' ]
-            line = '[%s] %s <%s>' % (datetime.utcfromtimestamp(log.get('timestamp', '')), status , log.get('recipient', ''))
+            line = '[%s] %s [%s] -> <%s>' % (datetime.utcfromtimestamp(log.get('timestamp', '')), status, log.get('message', {}).get('headers', {}).get('from', ''), log.get('recipient', ''))
             if not ok:
                 line += ' (%s)' % (log.get('delivery-status', {}).get('description', '') or log.get('delivery-status', {}).get('message', ''))
             line += ': %s' % log.get('message', {}).get('headers', {}).get('subject', '')
